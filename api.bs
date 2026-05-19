@@ -1328,7 +1328,7 @@ from [=transient activation-consuming APIs=]:
     using the API on one site makes the API unavailable to other sites.
 
 *   When the API is successfully used,
-    the API is enabled for use by all [=descendent navigables=]
+    the API is enabled for use by all [=descendant navigables=]
     of the [=top-level traversable=]'s [=active document=]
     (that is, all frames on the current page)
     until the next cross-site navigation.
@@ -3847,7 +3847,7 @@ urlPrefix: https://html.spec.whatwg.org/; spec: html; type: dfn
     text: active document; url: #nav-document
     text: activation notification
     text: activation triggering input event
-    text: descendent navigables
+    text: descendant navigables
     text: document state
     text: host; url: #concept-origin-host
     text: initiator origin; url: #document-state-initiator-origin
