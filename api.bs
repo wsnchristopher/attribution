@@ -390,7 +390,7 @@ Browsers might establish programs for registering aggregation services,
 similar in nature to the [root store program](https://www.ccadb.org/)
 used to authorize the certification authorities
 that browsers use in the validation
-of Web <acronym title="Public Key Infrastructure">PKI</acronym> certificates.
+of Web <abbr title="Public Key Infrastructure">PKI</abbr> certificates.
 The establishment of such a program
 is out of scope for this document.
 
