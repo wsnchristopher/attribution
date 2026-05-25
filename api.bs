@@ -1306,16 +1306,15 @@ temporarily makes the API available.
 A number of differences distinguish this design
 from [=transient activation-consuming APIs=]:
 
-*   Any [=activation triggering input event|user activation=]
-    makes the Attribution API available for a short period.
+*   The API becomes available for a short period when either:
 
-*   Additionally, when [=navigate|navigation=] is initiated
-    by a user
-    (that is, where the [=user navigation involvement=] is "browser UI"),
-    the Attribution API is available for a short period.
+    *   A [=activation triggering input event|user activation event=] is received
+        (that is, a click, keypress, or similar action).
 
-*   The first attempt to access the API by invoking
-    either <a for=Attribution>saveImpression()</a>
+    *   [=navigate|Navigation=] is initiated by a user
+        (that is, where the [=user navigation involvement=] is "browser UI").
+
+*   Invoking either <a for=Attribution>saveImpression()</a>
     or <a for=Attribution>measureConversion()</a>
     within an [=implementation-defined=] duration of the last activation,
     enables the API for that site.
@@ -1331,9 +1330,10 @@ from [=transient activation-consuming APIs=]:
     the API is enabled for use by all [=descendant navigables=]
     of the [=top-level traversable=]'s [=active document=]
     (that is, all frames on the current page)
-    until the next cross-site navigation.
+    can access the API without further availability checks.
 
-*   Any [=navigate|navigation=] of the [=top-level traversable=]
+*   Each activation makes the API available to at most one site.
+    Any [=navigate|navigation=] of the [=top-level traversable=]
     to a different [=site=] disables the API.
     However, any [=activation triggering input event|activation=],
     which might include the action that initiated the navigation,
@@ -1386,9 +1386,9 @@ do not cause the Attribution API to become inaccessible.
 
 <p class=note>
 Implementations might choose to extend the time allowed
-to account for the delays involved in page loading time.
+to account for the delays involved in loading page content during navigation.
 A fixed value might not account for performance differences
-in devices or in the network they use.
+in devices or in the network.
 Implementations could extend the value of [=attribution activation duration=]
 based on an understanding of performance chararacteristics.
 Alternatively, an implementation might suspend any timer
@@ -1451,6 +1451,8 @@ throwing a {{"NotAllowedError"}} {{DOMException}} on failure:
 1.  If |lastActivation| plus the [=attribution activation duration=]
     is less than the [=current high resolution time=],
     throw a {{"NotAllowedError"}} {{DOMException}}.
+
+1.  Set [=attribution activation timestamp=] to the [=unix epoch=].
 
 1.  Set |top|'s [=attribution enabled flag=] to true.
 
