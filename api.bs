@@ -792,8 +792,6 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
     only [=impressions=] recorded by one of the listed sites
     are eligible to match this [=conversion=].
   </dd>
-  <dt><dfn>credit</dfn></dt>
-  <dd>A [=list=] of numbers.</dd>
   <dt><dfn>value</dfn></dt>
   <dd>
     The [=conversion value=]. If an attribution is made and [[#dp|privacy]]
@@ -805,6 +803,16 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
     Together with epsilon, this is used to calibrate the distribution of random noise that
     will be added to the outcome. It is also used to determine the amount of [=privacy budget=]
     to expend on this [=conversion report=].
+  </dd>
+  <dt><dfn>credit</dfn></dt>
+  <dd>
+    A [=list=] of finite positive numbers
+    that describe how the [=conversion value=] is allocated across multiple impressions.
+    The value is split proportional to the values in the list
+    in the order specified.
+    If fewer impressions are selected than values in this list,
+    any additional items in this list are ignored.
+    When absent, the conversion value allocated to a single impression.
   </dd>
 </dl>
 
