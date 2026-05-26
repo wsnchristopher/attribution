@@ -3457,31 +3457,76 @@ be released through attribution.
 privacy budgets to mitigate this possibility.
 
 
-## Ad Fraud ## {#security-ad-fraud}
+## Controlling Cross-Site Participation ## {#site-trust-model}
 
-As with many technologies,
-advertising on the web
+In order to produce an aggregate histgram,
+multiple sites need to cooperate.
+Every [=impression site=] needs to produce consistent values
+for the [=impressions=] it saves.
+A [=conversion site=] needs to trust
+impression sites to record correct values.
+
+The API provides a number of filtering options
+for sites to help manage the risk of unwanted impressions
+that could pollute aggregates.
+
+*   An [=impression site=] can target specific [=conversion sites=]
+    using {{AttributionImpressionOptions/conversionSites}}.
+
+*   Impressions can be restricted to specific [=intermediary site|intermediaries=]
+    that operate on [=conversion sites=]
+    using {{AttributionImpressionOptions/conversionCallers}}.
+
+*   A [=conversion site=] can limit the [=impression sites=]
+    it queries as part of attribution
+    using {{AttributionConversionOptions/impressionSites}}.
+
+*   Conversion can also limit queries impressions
+    to those saved by specific [=intermediary site|intermediaries=]
+    using {{AttributionConversionOptions/impressionCallers}}.
+
+Filtering options are useful
+in limiting which sites are able to participate in attribution,
+which reduces the set of entities that are able to poison aggregate results.
+Effective use of these options is especially useful
+in preventing some accidental inclusion of unwanted impressions.
+
+These filtering are limited in their efficacy
+against malicious attempts to poison results.
+Trust is rarely as strictly binary as these controls expect.
+An impression site that is listed might mix
+impressions that are genuine from the perspective of the conversion site
+with falsified or erroneous impressions.
+Erroneous impressions represent what is considered InValid Traffic (IVT),
+some of which might be regarded as fraudulent.
+
+
+### Ad Fraud ### {#security-ad-fraud}
+
+Advertising on the web
 has been the subject of various kinds of fraud.
+A site might seek to conduct impression fraud using this API
+to create the impression that value
+is misattributed to ads placed with them.
 
 Fraudulent registration of impressions
-is a particular concern with the Attribution API,
+is a particular concern with this API,
 because impressions are stored only on the device.
 It is not possible to apply server-side intelligence
 to identify fraudulent impressions and exclude them
-from attribution. Conversely, even though [=conversion reports=]
-are encrypted, because the reports are sent
-to a server, the server can make a determination that
-the conversion is likely fraudulent and exclude it from
-aggregation.
+from attribution.
 
-An important mitigation against malicious use
-of the Attribution APIs is the explicit specification
-of eligible conversion sites when registering an impression,
-and of eligible impression sites and [=impression/histogram indexes=]
-when registering a conversion.
-This prevents impressions on arbitrary malicious sites
+The only direct mitigation against malicious impressions
+is the site-level filtering options.
+This prevents impressions on wholly-untrusted sites
 from interfering with attribution to the intended set
 of candidate impressions.
+
+Conversely, even though [=conversion reports=] are encrypted,
+because the reports are sent to the [=conversion site=],
+the conversion site can make a determination
+that the conversion is likely fraudulent
+and exclude it from aggregation.
 
 
 # Privacy Considerations # {#privacy}
