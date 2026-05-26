@@ -808,7 +808,8 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
   <dd>
     A [=list=] of finite positive numbers
     that describe how the [=conversion value=] is allocated across multiple impressions.
-    The value is split proportional to the values in the list
+    The value is split across the list of selected impressions
+    proportional to the values in the list
     in the order specified.
     If fewer impressions are selected than values in this list,
     any additional items in this list are ignored.
