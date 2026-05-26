@@ -775,7 +775,7 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
   <dt><dfn>lookbackDays</dfn></dt>
   <dd>A positive integer number of days. Only impressions occurring within the past `lookbackDays` may match this [=conversion=]. If omitted, it is equivalent to the [=maximum lookback=].</dd>
   <dt><dfn>matchValues</dfn></dt>
-  <dd>A [=set=] of match values that can be used to select this [=impression=].</dd>
+  <dd>A [=set=] of match values that can be used to select [=impressions=].</dd>
   <dt><dfn>impressionSites</dfn></dt>
   <dd>
     A [=set=] of impression sites.
