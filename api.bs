@@ -813,7 +813,7 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
     in the order specified.
     If fewer impressions are selected than values in this list,
     any additional items in this list are ignored.
-    When absent, the conversion value allocated to a single impression.
+    When absent, the conversion value is allocated to a single impression.
   </dd>
 </dl>
 
