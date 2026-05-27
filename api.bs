@@ -449,7 +449,7 @@ partial interface Navigator {
 
 This provides three key functions:
 
-* A list of browser-supported aggregation functions ([[#find-aggregation-service]])
+* A list of browser-supported aggregation services ([[#find-aggregation-service]])
 * A means of asking the browser to save impressions ([[#save-impression-api]])
 * A method to request conversion measurement ([[#measure-conversion-api]])
 
@@ -775,7 +775,7 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
   <dt><dfn>lookbackDays</dfn></dt>
   <dd>A positive integer number of days. Only impressions occurring within the past `lookbackDays` may match this [=conversion=]. If omitted, it is equivalent to the [=maximum lookback=].</dd>
   <dt><dfn>matchValues</dfn></dt>
-  <dd>A [=set=] of match values that can be used to select this [=impression=].</dd>
+  <dd>A [=set=] of match values that can be used to select [=impressions=].</dd>
   <dt><dfn>impressionSites</dfn></dt>
   <dd>
     A [=set=] of impression sites.
@@ -792,8 +792,6 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
     only [=impressions=] recorded by one of the listed sites
     are eligible to match this [=conversion=].
   </dd>
-  <dt><dfn>credit</dfn></dt>
-  <dd>A [=list=] of numbers.</dd>
   <dt><dfn>value</dfn></dt>
   <dd>
     The [=conversion value=]. If an attribution is made and [[#dp|privacy]]
@@ -805,6 +803,17 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
     Together with epsilon, this is used to calibrate the distribution of random noise that
     will be added to the outcome. It is also used to determine the amount of [=privacy budget=]
     to expend on this [=conversion report=].
+  </dd>
+  <dt><dfn>credit</dfn></dt>
+  <dd>
+    A [=list=] of finite positive numbers
+    that describe how the [=conversion value=] is allocated across multiple impressions.
+    The value is split across the list of selected impressions
+    proportional to the values in the list
+    in the order specified.
+    If fewer impressions are selected than values in this list,
+    any additional items in this list are ignored.
+    When absent, the conversion value is allocated to a single impression.
   </dd>
 </dl>
 
@@ -2741,8 +2750,8 @@ The <a enum-value for=AttributionAggregationProtocol>`dap-18-histogram`</a>
 aggregation method uses Prio [[PRIO]]
 and the Distributed Aggregation Protocol (DAP) [[DAP]].
 Specifically, this aggregation method uses
-the <dfn>Prio3L1BoundSum</dfn> instantiation [[PRIO-L1]]
-of the Prio3 Verifiable Distributed Aggregation Function (VDAF) [[VDAF]].
+the <dfn>Prio3L1BoundSum</dfn> [[PRIO-L1]]
+Verifiable Distributed Aggregation Function (VDAF) [[VDAF]].
 
 DAP and the [=Prio3L1BoundSum=] instantiation define how a report is prepared,
 encrypted, and submitted for aggregation.
