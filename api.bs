@@ -2851,10 +2851,6 @@ given [=validated conversion options=] |options|,
 [=moment=] |now|,
 and a [=list=] of [=integers=] |histogram|:
 
-1.  Let |field| be Field128,
-    as defined in [Section 6.1.3](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-vdaf-18#section-6.1.3)
-    of [[VDAF]].
-
 1.  Let |length| be the [=list/size=] of |histogram|.
 
 1.  Let |maxValue| be |options|.[=validated conversion options/max value=].
@@ -2863,7 +2859,7 @@ and a [=list=] of [=integers=] |histogram|:
     rounded to the nearest integer.
 
 1.  Let |vdaf| be a new PrioL1BoundSum VDAF [[PRIO-L1]] instance,
-    passing |field|, |length|, |maxValue|, and |chunkLength|.
+    passing |length|, |maxValue|, and |chunkLength|.
 
 1.  Let |microEpsilon| be |options|.[=validated conversion options/epsilon=]
     multiplied by 1,000,000, then rounded toward positive Infinity.
@@ -2878,14 +2874,14 @@ and a [=list=] of [=integers=] |histogram|:
 
     1.  An empty `task_info`.
 
-    1.  A `leader_aggregator_endpoint` set to the URL of the DAP Leader,
+    1.  A `leader_aggregator_endpoint` set to the [=URL serializer|serialized=] URL of the DAP Leader,
         taken from the [=implementation-defined=] definition
         of the selected [=aggregation service=]
         in |options|.[=validated conversion options/Aggregation Service=].
         The encoded value is produced by invoking the [=URL serializer=]
         with the configured URL and `false` (for [=URL serializer/exclude fragment=]).
 
-    1.  A `helper_aggregator_endpoint` set to the URL of the DAP Helper,
+    1.  A `helper_aggregator_endpoint` set to the [=URL serializer|serialized=] URL of the DAP Helper,
         taken from the [=implementation-defined=] definition
         of the selected [=aggregation service=]
         in |options|.[=validated conversion options/Aggregation Service=],
@@ -2960,14 +2956,17 @@ and a [=list=] of [=integers=] |histogram|:
         obtained for the [=aggregation service=]
         indicated by |options|.[=validated conversion options/Aggregation Service=].
 
-        <p class=note>The URL for <a enum-value for=AttributionAggregationProtocol>"dap-18-histogram"</a> is expected to identify the DAP Leader role.
-        Implementations need to obtain HPKE configuration for both Aggregators statically.
+        <p class=note>
+        The URL for <a enum-value for=AttributionAggregationProtocol>"dap-18-histogram"</a>
+        is expected to identify the DAP Leader role.
+        Implementations need to obtain HPKE configuration for both Aggregators statically;
+        see [[#unconfigured]].
         The HPKE configuration <span class=allow-2119>must not</span> be fetched on demand,
         as the time that takes will leak information
         to callers of {{Attribution/measureConversion()}}.
 
-    1.  Let |serverRole| be 2 for the first item (the Leader)
-        and 3 for the second (the Helper).
+    1.  Let |serverRole| be a [=byte=] with a value of 2 for the first item (the Leader)
+        or 3 for the second (the Helper).
 
     1.  Let |info| be the [=byte sequence=] formed by concatenating:
         the [=isomorphic encode|encoded=] value of the string `dap-18 input share`,
@@ -2981,7 +2980,7 @@ and a [=list=] of [=integers=] |histogram|:
         an empty set (for `private_extensions`) and |share| (for `payload`),
         following the structure for [`PlaintextInputShare`](https://datatracker.ietf.org/doc/html/draft-ietf-ppm-dap-18#section-4.4.2.1).
 
-    1.  Let |hpke| be an HPKE [[RFC9180]] configuration
+    1.  Let |hpke| be an HPKE [[RFC9180]] instantiation
         that is based on the same [HPKE configuration](https://datatracker.ietf.org/doc/html/draft-ietf-ppm-dap-18#section-4.4.1).
 
     1.  Let |encryptedShare| be the result of invoking |hpke|.[`Seal<mode_base>()`](https://hpkewg.github.io/hpke/draft-ietf-hpke-hpke.html#section-6.1),
@@ -2996,6 +2995,12 @@ and a [=list=] of [=integers=] |histogram|:
     obtained from the DAP aggregators.
 
 1.  Return |report|.
+
+<p class=note>
+This algorithm replicates some details of the DAP-related specifications.
+If there is discrepancy between this document and those specifications,
+that is an unintentional error in this document.
+Always follow the referenced specification when interacting with DAP.
 
 </div>
 
@@ -3967,8 +3972,8 @@ spec:css-2025; type:dfn; text:user
       "Martin Thomson"
     ],
     "title": "Distributed Aggregation Protocol (DAP) Extensions for the Attribution API",
-    "date": "2025-01-15",
-    "href": "https://datatracker.ietf.org/doc/html/draft-thomson-ppm-dap-attribution-00"
+    "date": "2026-02-18",
+    "href": "https://datatracker.ietf.org/doc/html/draft-thomson-ppm-dap-attribution-01"
   },
   "dap-taskprov": {
     "authors": [
