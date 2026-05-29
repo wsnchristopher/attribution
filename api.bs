@@ -2666,14 +2666,6 @@ add the step
 
 </div>
 
-# Implementation Considerations # {#implementation-considerations}
-
-* Management and distribution of values for the following:
-    * Histogram size
-    * [=Conversion site=] for [=impressions=]
-    * [=Impression site=] for [=conversions=]
-    * [=impression/histogram index|Histogram indexes=]
-
 
 # Aggregation # {#aggregation}
 
