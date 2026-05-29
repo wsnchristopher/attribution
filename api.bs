@@ -289,80 +289,86 @@ However, without due care, use of the API
 could produce misleading results that support poor decisions.
 
 To make better decisions using the information provided by the API,
-its limitations
-especially the potential sources of bias and error,
+its limitations--
+especially the potential sources of bias and error--
 need to be understood.
 Understanding needs to be applied
 both in the design of systems that use the API
 and in the interpretation of any results.
 
-**Scope limitations**--
-A critical limitation is that only activity in the same browser
-can be captured by the Attribution API.
-The extent and effects of advertising campaigns
-are rarely contained to a single medium.
-This means that any measurement results obtained
-cannot always capture all relevant activity.
+<dl>
 
-**Non-causal effects**--
-Some proportion of people who encounter advertising
-already intend to follow through with the actions
-the advertising seeks to encourage.
-Attributing results with those advertisements
-creates a false impression of their efficacy.
+: Scope limitations
+::  A critical limitation is that only activity in the same browser
+    can be captured by the Attribution API.
+    The extent and effects of advertising campaigns
+    are rarely contained to a single medium.
+    This means that any measurement obtained
+    cannot be assumed to capture all relevant activity.
 
-To better measure the causal effect of advertising,
-the use of (randomized) control trials--
-or, in industry terms, incrementality--
-is necessary [[JOHNSON20]].
-A basic advertising control trial
-involves identifying a target audience,
-advertising to a treatment group within that audience,
-withholding advertising or showing default advertisements to a control group,
-and measuring the difference in desired outcomes between the groups.
+: Non-causal effects
+::  Some proportion of people who encounter advertising
+    already intend to follow through with the actions
+    the advertising seeks to encourage.
+    Attributing outcomes to those advertisements
+    creates a false impression of their efficacy.
 
-This API can be used to support such trials.
-This might be achieved by allocating control and treatment populations
-to different histogram buckets.
-Note however that the web platform presently does not have a facility for
-providing consistent allocation of users
-into control and treatment groups
-across different sites.
+::  To better measure the causal effect of advertising,
+    the use of (randomized) control trials--
+    or, in industry terms, incrementality--
+    is necessary [[INFERNO]].
+    A basic advertising control trial
+    involves identifying a target audience,
+    advertising to a treatment group within that audience,
+    withholding advertising or showing default advertisements to a control group,
+    and measuring the difference in desired outcomes between the groups.
 
-**Simple attribution logic**--
-The API provides a simple multi-touch attribution algorithm.
-Simple attribution algorithms can introduce bias into results
-in ways that effect decision-making.
-Future versions of the API
-might enable more sophisticated algorithms.
+::  This API can be used to support such trials.
+    This might be achieved by allocating control and treatment populations
+    to different histogram buckets.
+    Note however that the web platform presently does not have a facility for
+    providing consistent allocation of users
+    into control and treatment groups
+    across different sites.
 
-**Sources of error**--
-There are multiple sources of error
-in a distributed measurements system.
-Differential privacy contributes some amount of noise to aggregates,
-but this is a known quantity.
+: Simple attribution logic
+::  The API provides a simple multi-touch attribution algorithm.
+    Simple attribution algorithms can introduce bias into results
+    in ways that affect decision-making.
+    Future versions of the API
+    might enable more sophisticated algorithms.
 
-Results might not accurately reflect what is being measured
-for a range of other reasons,
-some of which might be unavoidable,
-including:
+: Sources of error
+::  There are multiple sources of error
+    in a distributed measurement system.
+    Differential privacy contributes some amount of noise to aggregates,
+    but this is a known quantity.
 
-*   Failures and delays in propagating configuration to participating sites.
-*   Script errors that cause loss of impression or conversion events.
-*   Loss of stored impressions from storage pressure.
-*   Accidential or malicious recording of impressions.
-*   Network errors that result in lost reports.
-*   <abbr title="InValid Traffic">IVT</abbr> classification that either
-    causes genuine events to be disregarded
-    or includes fraud and accidental mistakes.
+::   Results might not accurately reflect what is being measured
+    for a range of other reasons,
+    some of which might be unavoidable,
+    including:
 
-Errors such as these could add an unknown amount of uncertainty
-to measurement results.
-Sites that use the API are responsible
-for managing their exposure to these and other classes of error.
-Future versions of the API
-could seek to provide better assistance to sites
-in handling errors.
+    *   Failures and delays in propagating configuration to participating sites.
+    *   Script errors that cause loss of impression or conversion events.
+    *   Loss of stored impressions from storage pressure.
+    *   Accidental or malicious recording of impressions.
+    *   Network errors that result in lost reports.
+    *   <abbr title="invalid traffic">IVT</abbr> classification that
+        causes genuine events to be disregarded.
+    *   <abbr title="invalid traffic">IVT</abbr> classification that
+        erroneously includes fraud or accidental mistakes.
+
+
+::  Errors such as these could add an unknown amount of uncertainty
+    to measurement results.
+    Sites that use the API are responsible
+    for managing their exposure to these and other classes of error.
+    Future versions of the API
+    could seek to provide better assistance to sites
+    in handling errors.
+
+</dl>
 
 
 # Overview of Operation # {#overview}
@@ -4069,7 +4075,7 @@ spec:css-2025; type:dfn; text:user
     "publisher": "Bureau of Economic Analysis",
     "date": "2017-10"
   },
-  "johnson20": {
+  "inferno": {
     "authors": [
       "Garrett A. Johnson"
     ],
