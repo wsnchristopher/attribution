@@ -1319,7 +1319,7 @@ from [=transient activation-consuming APIs=]:
     within an [=implementation-defined=] duration of the last activation,
     enables the API for that site.
 
-*   Each activation makes the API available to at most one site.
+*   Each activation makes the API available to at most one top-level site.
     Similar to [=transient activation=],
     where [=transient activation-consuming API|consuming the activation=]
     causes other similar APIs to be unavailable
@@ -1329,7 +1329,7 @@ from [=transient activation-consuming APIs=]:
 *   When the API is successfully used,
     the API is enabled for use by all [=descendant navigables=]
     of the [=top-level traversable=]'s [=active document=]
-    (that is, all frames on the current page)
+    (that is, all frames on the current page, including cross-site frames)
     can access the API without further availability checks.
 
 *   Each activation makes the API available to at most one site.
