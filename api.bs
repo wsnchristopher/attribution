@@ -12,7 +12,15 @@ Editor: Benjamin Case, w3cid 128082, Meta https://www.meta.com/, bmcase@meta.com
 Editor: Benjamin Savage, w3cid 114877, Meta https://www.meta.com/, btsavage@meta.com
 Editor: Charlie Harrison, w3cid 110615, Google https://www.google.com/, csharrison@chromium.org
 Editor: Martin Thomson, w3cid 68503, Mozilla https://mozilla.org/, mt@mozilla.com
-Abstract: This specifies a browser API for the measurement of advertising performance.  The goal is to produce aggregate statistics about how advertising leads to conversions, without creating a risk to the privacy of individual web users.  This API collates information about people from multiple web origins, which could be a significant risk to their privacy.  To manage this risk, the information that is gathered is aggregated using an aggregation service that is trusted by the user-agent to perform aggregation within strict limits.  Noise is added to the aggregates produced by this service to provide differential privacy. Websites may select an aggregation service from the list of approved aggregation services provided by the user-agent.
+Abstract:
+  This specifies a browser API for attribution.
+  The API produces aggregate statistics that can help sites
+  better understand the real-world performance of their advertising.
+  This API collates information about people from multiple web origins,
+  which could be a significant risk to their privacy.
+  To manage this risk,
+  the information that is gathered is aggregated
+  and differential privacy techniques are applied.
 Complain About: accidental-2119 yes, missing-example-ids yes
 Markup Shorthands: markdown yes, css no, dfn yes
 Assume Explicit For: yes
@@ -24,9 +32,12 @@ Level: None
 # Introduction # {#intro}
 
 This document defines an API for browsers
-that enables the collection of aggregated, differentially-private metrics.
+that enables the collection of [[#aggregation|aggregated]],
+[[#dp|differentially-private]] cross-site metrics.
 
 The goal of this API is to enable attribution for advertising.
+These aggregated metrics can contribute to a better understanding of advertising performance,
+provided that API is [[#limitations|used appropriately]].
 
 
 ## Attribution ## {#s-attribution}
@@ -122,9 +133,16 @@ with multiple purveyors of personal information that is traded for various purpo
 
 ## Goals ## {#goals}
 
-The goal of this document is to define a means of performing [=attribution=]
-for advertising
-that does not enable tracking.
+This document seeks to enable [=attribution=]
+for sites that use advertising
+while avoiding mechanisms that enable or encourage [[UNSANCTIONED-TRACKING|tracking]],
+such as [[WEB-WITHOUT-3P-COOKIES|cross-site cookies]].
+
+The Attribution API aims to provide
+[[#user-benefit|indirect]], [[#collective|collective]] user benefit
+by giving sites measurement tools.
+These tools can provide insight into advertising performance
+when [[#limitations|applied effectively]].
 
 
 ## End-User Benefit ## {#user-benefit}
@@ -155,19 +173,20 @@ path:images/value.svg
 Participation in an [=attribution=] measurement system
 would comprise a secondary cost to Web users.
 
-Support for attribution enables more effective advertising,
-largely by helping advertisers understand which ads perform best,
-and in what circumstances.
-Those circumstances might include
-the time and place that the ad is shown,
+Support for attribution can enables more effective advertising,
+by giving advertisers information
+they can use to improve advertising strategies.
+Attribution enables measurement of correlations
+between desired outcomes with characteristics of ads,
+such as the time and place that the ad is shown,
 the person to whom the ad is presented, and
 the details of the ad itself.
+Sites can use this information to improve how they use advertising.
 
-Connecting that information to outcomes
-allows an advertiser to learn what circumstances most often lead
-to the outcomes they most value.
-When [[#limitations|attribution is used effectively]],
-it allows advertisers to spend more on effective advertising
+Connecting actions to outcomes
+is a tool that advertisers can use
+as part of a larger measurement strategy that improves performance.
+Good measurement can allow advertisers to spend more on effective advertising
 and less on ineffective advertising.
 This lowers the overall cost of advertising
 relative to the value obtained. [[ONLINE-ADVERTISING]]
@@ -266,7 +285,7 @@ This enables both
 rigorous [[#limitations|experiments that seek to establish causality]]
 and simpler comparisons of different treatments.
 For instance, grouping by creative (the content of an ad)
-might be used to learn which creative works best.
+might be used to compare different creatives.
 
 Adding a value greater than one at each conversion
 enables more than simple counts.
