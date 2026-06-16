@@ -429,6 +429,9 @@ path:images/overview.svg
 <figcaption>Overview of Attribution Operation</figcaption>
 </figure>
 
+
+## Recording Impressions ## {#overview-impression}
+
 When an [=impression=] occurs,
 the <a method for=Attribution>saveImpression()</a> method can be used
 to request that the browser save information.
@@ -436,6 +439,9 @@ This includes an identifier for the impression
 and some additional information about the impression.
 For instance, advertisers might use additional information
 to record whether the impression was an ad view or an ad click.
+
+
+## Conversions or Querying Impressions ## {#overview-conversion}
 
 At [=conversion=] time, a [=conversion report=] is created.
 A <dfn>conversion report</dfn> is an encrypted histogram contribution
@@ -468,6 +474,9 @@ This minimally involves encryption of the histogram.
 <p class=note>A site that invokes this API will always receive a valid conversion report.
 As a result, sites learn nothing about what happened on other sites from this interaction.
 
+
+## Aggregation ## {#overview-aggregation}
+
 The site can collect the encrypted histograms it receives from calls to this API
 and submit them to the aggregation service.
 
@@ -483,7 +492,21 @@ Upon receiving a set of encrypted histograms from a site, the aggregation servic
 
 3.  returns the aggregate to the site.
 
-We refer to the final output as an <dfn>attribution result</dfn>.
+We refer to the final output of the aggregation service as an <dfn>attribution result</dfn>.
+
+Browser implementations need to have a set of aggregation services that are trusted
+to reliably perform the above functions.
+From the set of services that are offered,
+the [=conversion site=] needs to reach an agreement
+with their choice of service to perform aggregation.
+
+Browsers might establish programs for registering aggregation services,
+similar in nature to the [root store program](https://www.ccadb.org/)
+used to authorize the certification authorities
+that browsers use in the validation
+of Web <abbr title="Public Key Infrastructure">PKI</abbr> certificates.
+The establishment of such a program
+is out of scope for this document.
 
 
 # API Usage # {#api}
@@ -563,7 +586,7 @@ partial interface Navigator {
 
 This provides three key functions:
 
-* A list of browser-supported aggregation functions ([[#find-aggregation-service]])
+* A list of browser-supported aggregation services ([[#find-aggregation-service]])
 * A means of asking the browser to save impressions ([[#save-impression-api]])
 * A method to request conversion measurement ([[#measure-conversion-api]])
 
@@ -642,7 +665,7 @@ The URL is passed as the {{AttributionConversionOptions/aggregationService}} par
 to <a method for=Attribution>measureConversion()</a> to select the identified aggregation service.
 
 The <dfn enum>AttributionAggregationProtocol</dfn> describes the submission protocol
-used by different [=aggregation services=]. This document defines two protocols:
+used by different [=aggregation services=]. This document defines one protocol:
 
 <dl dfn-for=AttributionAggregationProtocol dfn-type=enum-value>
   <dt><dfn>dap-18-histogram</dfn></dt>
@@ -889,7 +912,7 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
   <dt><dfn>lookbackDays</dfn></dt>
   <dd>A positive integer number of days. Only impressions occurring within the past `lookbackDays` may match this [=conversion=]. If omitted, it is equivalent to the [=maximum lookback=].</dd>
   <dt><dfn>matchValues</dfn></dt>
-  <dd>A [=set=] of match values that can be used to select this [=impression=].</dd>
+  <dd>A [=set=] of match values that can be used to select [=impressions=].</dd>
   <dt><dfn>impressionSites</dfn></dt>
   <dd>
     A [=set=] of impression sites.
@@ -906,8 +929,6 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
     only [=impressions=] recorded by one of the listed sites
     are eligible to match this [=conversion=].
   </dd>
-  <dt><dfn>credit</dfn></dt>
-  <dd>A [=list=] of numbers.</dd>
   <dt><dfn>value</dfn></dt>
   <dd>
     The [=conversion value=]. If an attribution is made and [[#dp|privacy]]
@@ -919,6 +940,17 @@ The arguments to <a method for=Attribution>measureConversion()</a> are as follow
     Together with epsilon, this is used to calibrate the distribution of random noise that
     will be added to the outcome. It is also used to determine the amount of [=privacy budget=]
     to expend on this [=conversion report=].
+  </dd>
+  <dt><dfn>credit</dfn></dt>
+  <dd>
+    A [=list=] of finite positive numbers
+    that describe how the [=conversion value=] is allocated across multiple impressions.
+    The value is split across the list of selected impressions
+    proportional to the values in the list
+    in the order specified.
+    If fewer impressions are selected than values in this list,
+    any additional items in this list are ignored.
+    When absent, the conversion value is allocated to a single impression.
   </dd>
 </dl>
 
@@ -1433,7 +1465,7 @@ from [=transient activation-consuming APIs=]:
     within an [=implementation-defined=] duration of the last activation,
     enables the API for that site.
 
-*   Each activation makes the API available to at most one site.
+*   Each activation makes the API available to at most one top-level site.
     Similar to [=transient activation=],
     where [=transient activation-consuming API|consuming the activation=]
     causes other similar APIs to be unavailable
@@ -1443,7 +1475,7 @@ from [=transient activation-consuming APIs=]:
 *   When the API is successfully used,
     the API is enabled for use by all [=descendant navigables=]
     of the [=top-level traversable=]'s [=active document=]
-    (that is, all frames on the current page)
+    (that is, all frames on the current page, including cross-site frames)
     can access the API without further availability checks.
 
 *   Each activation makes the API available to at most one site.
@@ -2043,7 +2075,10 @@ To <dfn>validate {{AttributionConversionOptions}}</dfn> |options|:
     throw a {{RangeError}}.
 1.  Let |credit| be |options|.{{AttributionConversionOptions/credit}} if it [=map/exists=], «1» otherwise.
 1.  If |credit| [=list/is empty=], throw a {{RangeError}}.
-1.  If any of the [=list/items=] of |credit| are less than or equal to 0, throw a {{RangeError}}.
+1.  If any of the [=list/items=] of |credit| are
+    not [finite](https://tc39.es/ecma262/multipage/numbers-and-dates.html#sec-number.isfinite)
+    or less than or equal to 0,
+    throw a {{RangeError}}.
 1.  If the [=list/size=] of |credit| exceeds the [=implementation-defined=]
     [=maximum number of credit values=], throw a {{RangeError}}.
 1.  Let |lookback| be |options|.{{AttributionConversionOptions/lookbackDays}} [=days=]
@@ -2780,14 +2815,6 @@ add the step
 
 </div>
 
-# Implementation Considerations # {#implementation-considerations}
-
-* Management and distribution of values for the following:
-    * Histogram size
-    * [=Conversion site=] for [=impressions=]
-    * [=Impression site=] for [=conversions=]
-    * [=impression/histogram index|Histogram indexes=]
-
 
 # Aggregation # {#aggregation}
 
@@ -2855,8 +2882,8 @@ The <a enum-value for=AttributionAggregationProtocol>`dap-18-histogram`</a>
 aggregation method uses Prio [[PRIO]]
 and the Distributed Aggregation Protocol (DAP) [[DAP]].
 Specifically, this aggregation method uses
-the <dfn>Prio3L1BoundSum</dfn> instantiation [[PRIO-L1]]
-of the Prio3 Verifiable Distributed Aggregation Function (VDAF) [[VDAF]].
+the <dfn>Prio3L1BoundSum</dfn> [[PRIO-L1]]
+Verifiable Distributed Aggregation Function (VDAF) [[VDAF]].
 
 DAP and the [=Prio3L1BoundSum=] instantiation define how a report is prepared,
 encrypted, and submitted for aggregation.
@@ -2930,10 +2957,6 @@ given [=validated conversion options=] |options|,
 [=moment=] |now|,
 and a [=list=] of [=integers=] |histogram|:
 
-1.  Let |field| be Field128,
-    as defined in [Section 6.1.3](https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-vdaf-18#section-6.1.3)
-    of [[VDAF]].
-
 1.  Let |length| be the [=list/size=] of |histogram|.
 
 1.  Let |maxValue| be |options|.[=validated conversion options/max value=].
@@ -2942,7 +2965,7 @@ and a [=list=] of [=integers=] |histogram|:
     rounded to the nearest integer.
 
 1.  Let |vdaf| be a new PrioL1BoundSum VDAF [[PRIO-L1]] instance,
-    passing |field|, |length|, |maxValue|, and |chunkLength|.
+    passing |length|, |maxValue|, and |chunkLength|.
 
 1.  Let |microEpsilon| be |options|.[=validated conversion options/epsilon=]
     multiplied by 1,000,000, then rounded toward positive Infinity.
@@ -2957,14 +2980,14 @@ and a [=list=] of [=integers=] |histogram|:
 
     1.  An empty `task_info`.
 
-    1.  A `leader_aggregator_endpoint` set to the URL of the DAP Leader,
+    1.  A `leader_aggregator_endpoint` set to the [=URL serializer|serialized=] URL of the DAP Leader,
         taken from the [=implementation-defined=] definition
         of the selected [=aggregation service=]
         in |options|.[=validated conversion options/Aggregation Service=].
         The encoded value is produced by invoking the [=URL serializer=]
         with the configured URL and `false` (for [=URL serializer/exclude fragment=]).
 
-    1.  A `helper_aggregator_endpoint` set to the URL of the DAP Helper,
+    1.  A `helper_aggregator_endpoint` set to the [=URL serializer|serialized=] URL of the DAP Helper,
         taken from the [=implementation-defined=] definition
         of the selected [=aggregation service=]
         in |options|.[=validated conversion options/Aggregation Service=],
@@ -3039,14 +3062,17 @@ and a [=list=] of [=integers=] |histogram|:
         obtained for the [=aggregation service=]
         indicated by |options|.[=validated conversion options/Aggregation Service=].
 
-        <p class=note>The URL for <a enum-value for=AttributionAggregationProtocol>"dap-18-histogram"</a> is expected to identify the DAP Leader role.
-        Implementations need to obtain HPKE configuration for both Aggregators statically.
+        <p class=note>
+        The URL for <a enum-value for=AttributionAggregationProtocol>"dap-18-histogram"</a>
+        is expected to identify the DAP Leader role.
+        Implementations need to obtain HPKE configuration for both Aggregators statically;
+        see [[#unconfigured]].
         The HPKE configuration <span class=allow-2119>must not</span> be fetched on demand,
         as the time that takes will leak information
         to callers of {{Attribution/measureConversion()}}.
 
-    1.  Let |serverRole| be 2 for the first item (the Leader)
-        and 3 for the second (the Helper).
+    1.  Let |serverRole| be a [=byte=] with a value of 2 for the first item (the Leader)
+        or 3 for the second (the Helper).
 
     1.  Let |info| be the [=byte sequence=] formed by concatenating:
         the [=isomorphic encode|encoded=] value of the string `dap-18 input share`,
@@ -3060,7 +3086,7 @@ and a [=list=] of [=integers=] |histogram|:
         an empty set (for `private_extensions`) and |share| (for `payload`),
         following the structure for [`PlaintextInputShare`](https://datatracker.ietf.org/doc/html/draft-ietf-ppm-dap-18#section-4.4.2.1).
 
-    1.  Let |hpke| be an HPKE [[RFC9180]] configuration
+    1.  Let |hpke| be an HPKE [[RFC9180]] instantiation
         that is based on the same [HPKE configuration](https://datatracker.ietf.org/doc/html/draft-ietf-ppm-dap-18#section-4.4.1).
 
     1.  Let |encryptedShare| be the result of invoking |hpke|.[`Seal<mode_base>()`](https://hpkewg.github.io/hpke/draft-ietf-hpke-hpke.html#section-6.1),
@@ -3075,6 +3101,12 @@ and a [=list=] of [=integers=] |histogram|:
     obtained from the DAP aggregators.
 
 1.  Return |report|.
+
+<p class=note>
+This algorithm replicates some details of the DAP-related specifications.
+If there is discrepancy between this document and those specifications,
+that is an unintentional error in this document.
+Always follow the referenced specification when interacting with DAP.
 
 </div>
 
@@ -3571,31 +3603,76 @@ be released through attribution.
 privacy budgets to mitigate this possibility.
 
 
-## Ad Fraud ## {#security-ad-fraud}
+## Controlling Cross-Site Participation ## {#site-trust-model}
 
-As with many technologies,
-advertising on the web
+In order to produce an aggregate histogram,
+multiple sites need to cooperate.
+Every [=impression site=] needs to produce consistent values
+for the [=impressions=] it saves.
+A [=conversion site=] needs to trust
+impression sites to record correct values.
+
+The API provides a number of filtering options
+for sites to help manage the risk of unwanted impressions
+that could pollute aggregates.
+
+*   An [=impression site=] can target specific [=conversion sites=]
+    using {{AttributionImpressionOptions/conversionSites}}.
+
+*   Impressions can be restricted to specific [=intermediary site|intermediaries=]
+    that operate on [=conversion sites=]
+    using {{AttributionImpressionOptions/conversionCallers}}.
+
+*   A [=conversion site=] can limit the [=impression sites=]
+    it queries as part of attribution
+    using {{AttributionConversionOptions/impressionSites}}.
+
+*   Conversion can also limit queries impressions
+    to those saved by specific [=intermediary site|intermediaries=]
+    using {{AttributionConversionOptions/impressionCallers}}.
+
+Filtering options are useful
+in limiting which sites are able to participate in attribution,
+which reduces the set of entities that are able to poison aggregate results.
+Effective use of these options is especially useful
+in preventing some accidental inclusion of unwanted impressions.
+
+These filtering options are limited in their efficacy
+against malicious attempts to poison results.
+Trust is rarely as strictly binary as these controls expect.
+An impression site that is listed might mix
+impressions that are genuine from the perspective of the conversion site
+with falsified or erroneous impressions.
+Erroneous impressions represent what is considered InValid Traffic (IVT),
+some of which might be regarded as fraudulent.
+
+
+### Ad Fraud ### {#security-ad-fraud}
+
+Advertising on the web
 has been the subject of various kinds of fraud.
+A site might seek to conduct impression fraud using this API
+to create the impression that value
+is misattributed to ads placed with them.
 
 Fraudulent registration of impressions
-is a particular concern with the Attribution API,
+is a particular concern with this API,
 because impressions are stored only on the device.
 It is not possible to apply server-side intelligence
 to identify fraudulent impressions and exclude them
-from attribution. Conversely, even though [=conversion reports=]
-are encrypted, because the reports are sent
-to a server, the server can make a determination that
-the conversion is likely fraudulent and exclude it from
-aggregation.
+from attribution.
 
-An important mitigation against malicious use
-of the Attribution APIs is the explicit specification
-of eligible conversion sites when registering an impression,
-and of eligible impression sites and [=impression/histogram indexes=]
-when registering a conversion.
-This prevents impressions on arbitrary malicious sites
+The only direct mitigation against malicious impressions
+is the site-level filtering options.
+This prevents impressions on wholly-untrusted sites
 from interfering with attribution to the intended set
 of candidate impressions.
+
+Conversely, even though [=conversion reports=] are encrypted,
+because the reports are sent to the [=conversion site=],
+the conversion site can make a determination
+that the conversion is likely fraudulent
+and exclude it from aggregation.
 
 
 # Privacy Considerations # {#privacy}
@@ -4046,8 +4123,8 @@ spec:css-2025; type:dfn; text:user
       "Martin Thomson"
     ],
     "title": "Distributed Aggregation Protocol (DAP) Extensions for the Attribution API",
-    "date": "2025-01-15",
-    "href": "https://datatracker.ietf.org/doc/html/draft-thomson-ppm-dap-attribution-00"
+    "date": "2026-02-18",
+    "href": "https://datatracker.ietf.org/doc/html/draft-thomson-ppm-dap-attribution-01"
   },
   "dap-taskprov": {
     "authors": [
