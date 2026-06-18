@@ -173,7 +173,7 @@ path:images/value.svg
 Participation in an [=attribution=] measurement system
 would comprise a secondary cost to Web users.
 
-Support for attribution can enables more effective advertising,
+Support for attribution can enable more effective advertising,
 by giving advertisers information
 they can use to improve advertising strategies.
 Attribution enables measurement of correlations
