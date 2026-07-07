@@ -548,13 +548,13 @@ export class Backend {
     const valueDeductionFp = valueSensitivity / noiseScale;
     const l1NormDeduction = Math.ceil(l1NormDeductionFp * 1000000);
     const valueDeduction = Math.ceil(valueDeductionFp * 1000000);
+    const deduction = isSingleEpoch ? l1NormDeduction : valueDeduction;
     if (
       !this.#checkForAvailablePrivacyBudget(
         key,
-        l1NormDeduction,
+        deduction,
         valueDeduction,
         impressions,
-        isSingleEpoch,
       )
     ) {
       return false;
@@ -564,7 +564,6 @@ export class Backend {
       key,
       this.#delegate.perSitePrivacyBudget,
     );
-    const deduction = isSingleEpoch ? l1NormDeduction : valueDeduction;
     const currentValue = entry.value;
     entry.value = currentValue - deduction;
     const epoch = key.epoch;
@@ -593,12 +592,10 @@ export class Backend {
 
   #checkForAvailablePrivacyBudget(
     key: PrivacyBudgetKey,
-    l1NormDeduction: number,
+    deduction: number,
     valueDeduction: number,
     impressions: ReadonlySet<Impression>,
-    isSingleEpoch: boolean,
   ): boolean {
-    const deduction = isSingleEpoch ? l1NormDeduction : valueDeduction;
     const currentValue =
       getEntry(this.#privacyBudgetStore, key)?.value ??
       this.#delegate.perSitePrivacyBudget;

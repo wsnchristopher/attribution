@@ -1235,9 +1235,10 @@ and a [=set=] of [=epoch indices=] |deductedGlobalBudgets|:
     wait until the value becomes false,
     then set the value to true.
 
+1.  Let |deduction| be |l1NormDeduction| if |isSingleEpoch| is true, |valueDeduction| otherwise.
+
 1.  If the result of invoking [=check for available privacy budget|checking for available privacy budget=]
-    with |key|, |l1NormDeduction|, |valueDeduction|,
-    |impressions|, and |isSingleEpoch|
+    with |key|, |deduction|, |valueDeduction|, and |impressions|
     is false, perform the following steps:
 
     1.  Set [=attribution budget lock=] to false.
@@ -1246,7 +1247,6 @@ and a [=set=] of [=epoch indices=] |deductedGlobalBudgets|:
 
 1.  All budget checks passed, so perform the deductions:
 
-    1.  If |isSingleEpoch| let |deduction| be |l1NormDeduction| else let |deduction| be |valueDeduction|.
 
     1.  Let |currentValue| be the result of [=map/get|getting the value=] of |key|
         in the [=privacy budget store=]
@@ -1291,11 +1291,9 @@ and a [=set=] of [=epoch indices=] |deductedGlobalBudgets|:
 
 <div algorithm>
 To <dfn>check for available privacy budget</dfn>
-given a [=privacy budget key=] |key|, integer |l1NormDeduction|,
+given a [=privacy budget key=] |key|, integer |deduction|,
 integer |valueDeduction|,
-[=set=] of [=impressions=] |impressions| and boolean |isSingleEpoch|:
-
-1.  If |isSingleEpoch| let |deduction| be |l1NormDeduction| else let |deduction| be |valueDeduction|.
+and [=set=] of [=impressions=] |impressions|:
 
 1.  Let |currentValue| be set to the value of [=map/get|getting the value=] of |key|
     from [=privacy budget store=],
