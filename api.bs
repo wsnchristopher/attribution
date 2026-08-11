@@ -12,7 +12,15 @@ Editor: Benjamin Case, w3cid 128082, Meta https://www.meta.com/, bmcase@meta.com
 Editor: Benjamin Savage, w3cid 114877, Meta https://www.meta.com/, btsavage@meta.com
 Editor: Charlie Harrison, w3cid 110615, Google https://www.google.com/, csharrison@chromium.org
 Editor: Martin Thomson, w3cid 68503, Mozilla https://mozilla.org/, mt@mozilla.com
-Abstract: This specifies a browser API for the measurement of advertising performance.  The goal is to produce aggregate statistics about how advertising leads to conversions, without creating a risk to the privacy of individual web users.  This API collates information about people from multiple web origins, which could be a significant risk to their privacy.  To manage this risk, the information that is gathered is aggregated using an aggregation service that is trusted by the user agent to perform aggregation within strict limits.  Noise is added to the aggregates produced by this service to provide differential privacy. Websites may select an aggregation service from the list of approved aggregation services provided by the user agent.
+Abstract:
+  This specifies a browser API for attribution.
+  The API produces aggregate statistics that can help sites
+  better understand the real-world performance of their advertising.
+  This API collates information about people from multiple web origins,
+  which could be a significant risk to their privacy.
+  To manage this risk,
+  the information that is gathered is aggregated
+  and differential privacy techniques are applied.
 Complain About: accidental-2119 yes, missing-example-ids yes
 Markup Shorthands: markdown yes, css no, dfn yes
 Assume Explicit For: yes
@@ -24,9 +32,12 @@ Level: None
 # Introduction # {#intro}
 
 This document defines an API for browsers
-that enables the collection of aggregated, differentially-private metrics.
+that enables the collection of [[#aggregation|aggregated]],
+[[#dp|differentially-private]] cross-site metrics.
 
 The goal of this API is to enable attribution for advertising.
+These aggregated metrics can contribute to a better understanding of advertising performance,
+provided that API is [[#limitations|used appropriately]].
 
 
 ## Attribution ## {#s-attribution}
@@ -98,7 +109,7 @@ The cost of measurement performance was privacy.
 In order to produce accurate and comprehensive information,
 advertising businesses performed extensive tracking of the activity of all Web users.
 Each browser was given a tracking identifier,
-often using cookies that were logged by cross-site content.
+often using cookies that associated with cross-site resources.
 Every action of interest was logged against this identifier,
 forming a comprehensive record of a person's online activities.
 
@@ -122,9 +133,16 @@ with multiple purveyors of personal information that is traded for various purpo
 
 ## Goals ## {#goals}
 
-The goal of this document is to define a means of performing [=attribution=]
-for advertising
-that does not enable tracking.
+This document seeks to enable [=attribution=]
+for sites that use advertising
+while avoiding mechanisms that enable or encourage [[UNSANCTIONED-TRACKING|tracking]],
+such as [[WEB-WITHOUT-3P-COOKIES|cross-site cookies]].
+
+The Attribution API aims to provide
+[[#user-benefit|indirect]], [[#collective|collective]] user benefit
+by giving sites measurement tools.
+These tools can provide insight into advertising performance
+when [[#limitations|applied effectively]].
 
 
 ## End-User Benefit ## {#user-benefit}
@@ -155,18 +173,20 @@ path:images/value.svg
 Participation in an [=attribution=] measurement system
 would comprise a secondary cost to Web users.
 
-Support for attribution enables more effective advertising,
-largely by informing advertisers about what ads perform best,
-and in what circumstances.
-Those circumstances might include
-the time and place that the ad is shown,
+Support for attribution can enable more effective advertising,
+by giving advertisers information
+they can use to improve advertising strategies.
+Attribution enables measurement of correlations
+between desired outcomes with characteristics of ads,
+such as the time and place that the ad is shown,
 the person to whom the ad is presented, and
 the details of the ad itself.
+Sites can use this information to improve how they use advertising.
 
-Connecting that information to outcomes
-allows an advertiser to learn what circumstances most often lead
-to the outcomes they most value.
-That allows advertisers to spend more on effective advertising
+Connecting actions to outcomes
+is a tool that advertisers can use
+as part of a larger measurement strategy that improves performance.
+Good measurement can allow advertisers to spend more on effective advertising
 and less on ineffective advertising.
 This lowers the overall cost of advertising
 relative to the value obtained. [[ONLINE-ADVERTISING]]
@@ -250,6 +270,7 @@ and the tallies of conversions attributed to each
 form a histogram.
 Each bucket of the histogram counts the conversions
 for a group of ads.
+This allows for comparison across the groupings.
 
 <figure>
 <pre class=include-raw>
@@ -260,8 +281,11 @@ path:images/histogram.svg
 </figure>
 
 Different groupings might be used for different purposes.
+This enables both
+rigorous [[#limitations|experiments that seek to establish causality]]
+and simpler comparisons of different treatments.
 For instance, grouping by creative (the content of an ad)
-might be used to learn which creative works best.
+might be used to compare different creatives.
 
 Adding a value greater than one at each conversion
 enables more than simple counts.
@@ -279,6 +303,96 @@ to split credit.
 * Flexibility to assign buckets
 * As histogram size increases, noise becomes a problem
 -->
+
+
+## Limitations and Successful Use ## {#limitations}
+
+The results that the Attribution API provides
+can inform decisions about advertising strategies.
+However, without due care, use of the API
+could produce misleading results that support poor decisions.
+
+To make better decisions using the information provided by the API,
+its limitations--
+especially the potential sources of bias and error--
+need to be understood.
+Understanding needs to be applied
+both in the design of systems that use the API
+and in the interpretation of any results.
+
+<dl>
+
+: Scope limitations
+::  A critical limitation is that only activity in the same browser
+    can be captured by the Attribution API.
+    The extent and effects of advertising campaigns
+    are rarely contained to a single medium.
+    This means that any measurement obtained
+    cannot be assumed to capture all relevant activity.
+
+: Non-causal effects
+::  Some proportion of people who encounter advertising
+    already intend to follow through with the actions
+    the advertising seeks to encourage.
+    Attributing outcomes to those advertisements
+    creates a false impression of their efficacy.
+
+::  To better measure the causal effect of advertising,
+    the use of (randomized) control trials--
+    or, in industry terms, incrementality--
+    is necessary [[INFERNO]].
+    A basic advertising control trial
+    involves identifying a target audience,
+    advertising to a treatment group within that audience,
+    withholding advertising or showing default advertisements to a control group,
+    and measuring the difference in desired outcomes between the groups.
+
+::  This API can be used to support such trials.
+    This might be achieved by allocating control and treatment populations
+    to different histogram buckets.
+    Note however that the web platform presently does not have a facility for
+    providing consistent allocation of users
+    into control and treatment groups
+    across different sites.
+
+: Simple attribution logic
+::  The API provides a simple multi-touch attribution algorithm.
+    Simple attribution algorithms can introduce bias into results
+    in ways that affect decision-making.
+    Future versions of the API
+    might enable more sophisticated algorithms.
+
+: Sources of error
+::  There are multiple sources of error
+    in a distributed measurement system.
+    Differential privacy contributes some amount of noise to aggregates,
+    but this is a known quantity.
+
+::   Results might not accurately reflect what is being measured
+    for a range of other reasons,
+    some of which might be unavoidable,
+    including:
+
+    *   Failures and delays in propagating configuration to participating sites.
+    *   Script errors that cause loss of impression or conversion events.
+    *   Loss of stored impressions from storage pressure.
+    *   Accidental or malicious recording of impressions.
+    *   Network errors that result in lost reports.
+    *   <abbr title="invalid traffic">IVT</abbr> classification that
+        causes genuine events to be disregarded.
+    *   <abbr title="invalid traffic">IVT</abbr> classification that
+        erroneously includes fraud or accidental mistakes.
+
+
+::  Errors such as these could add an unknown amount of uncertainty
+    to measurement results.
+    Sites that use the API are responsible
+    for managing their exposure to these and other classes of error.
+    Future versions of the API
+    could seek to provide better assistance to sites
+    in handling errors.
+
+</dl>
 
 
 # Overview of Operation # {#overview}
@@ -4066,6 +4180,15 @@ spec:css-2025; type:dfn; text:user
     "href": "https://www.bea.gov/research/papers/2017/measuring-free-digital-economy-within-gdp-and-productivity-accounts",
     "publisher": "Bureau of Economic Analysis",
     "date": "2017-10"
+  },
+  "inferno": {
+    "authors": [
+      "Garrett A. Johnson"
+    ],
+    "title": "Inferno: A Guide to Field Experiments in Online Display Advertising",
+    "href": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3581396",
+    "publisher": "Journal of Economics & Management Strategy",
+    "date": "2023-01-18"
   },
   "online-advertising": {
     "authors": [
